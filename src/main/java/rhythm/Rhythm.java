@@ -1,6 +1,8 @@
 package rhythm;
 
 import java.util.ArrayList;
+import jm.music.data.*;
+import jm.JMC;
 
 public class Rhythm {
 	private long measureStartTime, noteStartTime;// time stamps for when the audio file is played for recording both times
@@ -8,9 +10,9 @@ public class Rhythm {
 	private ArrayList<Long> measureTimes, noteTimes;
 	private int time1 = 4, time2 = 4;// top and bottom for time signature respectively. defaults to 4/4
 
-	private ArrayList<Note> notes;
+	private ArrayList<NoteTime> notes;
 
-	private static final Note BAR = new Note(-1);
+	private static final NoteTime BAR = new NoteTime(0);
 
 	public Rhythm() {
 
@@ -52,7 +54,7 @@ public class Rhythm {
 		notes.add(BAR);
 		for (long noteTime : noteTimes) {
 			if (noteTime <= measureTimes.get(0)) {
-				notes.add(new Note(0));
+				notes.add(new NoteTime(0));
 			}
 			while (measureIndex < measureTimes.size() && noteTime > measureTimes.get(measureIndex)) {
 				measureIndex++;
@@ -71,7 +73,7 @@ public class Rhythm {
 				double time = i * timeChunk + bar1;
 				if (time > noteTime) {
 					double lastTime = time - timeChunk;
-					Note newNote = new Note();
+					NoteTime newNote = new NoteTime();
 					if (Math.abs(noteTime - lastTime) > Math.abs(noteTime - time)) {
 						newNote.regNotes = i;
 					} else {
@@ -85,15 +87,29 @@ public class Rhythm {
 		notes.add(BAR);
 	}
 
-	static class Note {
+	public Phrase getPhrase() {
+		Phrase phrase = new Phrase();
+		for (int i = 0; i < notes.size(); i++) {
+			NoteTime note = notes.get(i);
+			if (note == BAR) {
+				continue;
+			}
+			NoteTime lastNote = notes.get(i - 1);
+			double time = (double) (note.regNotes - lastNote.regNotes) * notePrecision * 4.0; // jmusic api has 1 as quarter note while here 1 is a whole note;
+			phrase.add(new Note(JMC.C4, time));
+		}
+		return phrase;
+	}
+
+	public static class NoteTime {
 		int regNotes = 0;
 		int minNotes = 0;
 
-		public Note(int regNotes) {
+		public NoteTime(int regNotes) {
 			this.regNotes = regNotes;
 		}
 
-		public Note() {
+		public NoteTime() {
 		}
 
 	}
