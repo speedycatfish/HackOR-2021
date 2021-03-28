@@ -2,6 +2,7 @@ package test;
 
 import javax.sound.midi.MidiChannel;
 
+import jm.gui.show.ShowScore;
 import jm.gui.sketch.SketchRuler;
 import jm.gui.sketch.SketchScore;
 import jm.music.data.Note;
@@ -23,6 +24,7 @@ public class MusicNoteTest {
 		part.add(p);
 		Score newscore = new Score();
 		newscore.add(part);
+		new ShowScore(newscore);
 
 	}
 
